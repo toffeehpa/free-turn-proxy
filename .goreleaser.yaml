@@ -59,6 +59,23 @@ builds:
       - windows_386
       - freebsd_amd64
 
+  # Мост -provider sfu: живёт рядом с server, поэтому только linux.
+  - id: sfubridge
+    main: ./cmd/sfubridge
+    binary: sfubridge
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -checklinkname=0 -X main.version={{.Version}}
+    env:
+      - CGO_ENABLED=0
+    targets:
+      - linux_amd64
+      - linux_arm64
+      - linux_386
+      - linux_arm_7
+      - linux_riscv64
+
   # Android client only. Pure Go (CGO=0), для standalone-запуска в Termux.
   - id: client-android
     main: ./cmd/client
@@ -80,6 +97,7 @@ archives:
     ids:
       - client
       - server
+      - sfubridge
     formats: [binary]
     name_template: >-
       {{ .Binary }}-{{ .Os }}-{{ .Arch }}
