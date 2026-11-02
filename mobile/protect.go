@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"github.com/toffeehpa/free-turn-proxy/internal/netctl"
+	sfuprotect "github.com/toffeehpa/free-turn-proxy/internal/sfu/protect"
 )
 
 // Protector реализуется хостом для исключения сокетов клиента из VPN-туннеля (VpnService.protect).
@@ -24,9 +25,12 @@ func SetProtect(p Protector) {
 	if p == nil {
 		protector.Store(nil)
 		netctl.SetControl(nil)
+		sfuprotect.SetProtector(nil)
 		return
 	}
 	protector.Store(&p)
+	// Сокеты pion в SFU-канале создаются мимо netctl - им свой хук.
+	sfuprotect.SetProtector(p.Protect)
 	netctl.SetControl(func(_, _ string, c syscall.RawConn) error {
 		ok := false
 		if err := c.Control(func(fd uintptr) { ok = p.Protect(int(fd)) }); err != nil {

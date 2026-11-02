@@ -24,6 +24,14 @@ func (s *Session) link(dialer net.Dialer, peer *net.UDPAddr) (udprelay.AuthHandl
 			return turndial.Direct(ctx, peer)
 		}, nil
 	}
+	if s.cfg.Provider.Name == config.ProviderSFU {
+		log.Infof("provider=%s", config.ProviderSFU)
+		room := "https://vk.ru/call/join/" + s.cfg.VK.Links[0]
+		sfuOpts := s.cfg.SFU
+		return udprelay.NopAuth{}, func(ctx context.Context, _ int) (*turndial.Stream, error) {
+			return turndial.SFU(ctx, room, "", sfuOpts.FPS, sfuOpts.Batch, peer)
+		}, nil
+	}
 
 	prov, err := buildProvider(s.cfg, dialer, &s.connected, s.deps.Solver, log, s.total)
 	if err != nil {

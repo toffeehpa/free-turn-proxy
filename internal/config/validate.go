@@ -63,9 +63,20 @@ func validateProvider(c *Client) error {
 	switch c.Provider.Name {
 	case ProviderDirect:
 		return nil
+	case ProviderSFU:
+		if len(c.VK.Links) == 0 {
+			return errors.New("sfu: need a VK Calls link (-links)")
+		}
+		if c.SFU.FPS < 0 || c.SFU.FPS > 240 {
+			return fmt.Errorf("-sfu-fps %d: must be 0..240", c.SFU.FPS)
+		}
+		if c.SFU.Batch < 0 || c.SFU.Batch > 256 {
+			return fmt.Errorf("-sfu-batch %d: must be 0..256", c.SFU.Batch)
+		}
+		return nil
 	case ProviderVK:
 	default:
-		return fmt.Errorf("invalid -provider value %q: must be %s | %s", c.Provider.Name, ProviderVK, ProviderDirect)
+		return fmt.Errorf("invalid -provider value %q: must be %s | %s | %s", c.Provider.Name, ProviderVK, ProviderDirect, ProviderSFU)
 	}
 	if len(c.VK.Links) == 0 {
 		return errors.New("vk: need at least one link (-links / -link)")

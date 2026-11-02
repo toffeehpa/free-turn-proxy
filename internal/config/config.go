@@ -70,6 +70,7 @@ type ProviderOpts struct {
 const (
 	ProviderVK     = "vk"
 	ProviderDirect = "direct"
+	ProviderSFU    = "sfu"
 )
 
 type DNSOpts struct {
@@ -100,9 +101,16 @@ type Client struct {
 	Log      LogOpts
 	KCP      KCPOpts
 	Tunnel   TunnelOpts
+	SFU      SFUOpts
 	ClientID string
 	SubURL   string
 	Routes   bool
+}
+
+// SFUOpts - темп видеотрека для -provider sfu; ноль - дефолт канала.
+type SFUOpts struct {
+	FPS   int
+	Batch int
 }
 
 type Server struct {

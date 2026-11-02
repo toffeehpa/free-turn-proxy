@@ -26,9 +26,15 @@ type ClientJSON struct {
 	Log    logJSON    `json:"log"`
 	KCP    kcpJSON    `json:"kcp"`
 	Tunnel tunnelJSON `json:"tunnel"`
+	SFU    sfuJSON    `json:"sfu,omitempty"`
 }
 
 // tunnelJSON - параметры встроенного wg-quick туннеля.
+type sfuJSON struct {
+	FPS   int `json:"fps,omitempty"`
+	Batch int `json:"batch,omitempty"`
+}
+
 type tunnelJSON struct {
 	Mode   string `json:"mode"`
 	Config string `json:"config"`
@@ -190,5 +196,8 @@ func (j ClientJSON) toRaw() raw {
 		TunnelMTU:    j.Tunnel.MTU,
 
 		KCP: j.KCP.profile(),
+
+		SFUFPS:   j.SFU.FPS,
+		SFUBatch: j.SFU.Batch,
 	}
 }

@@ -37,6 +37,8 @@ func ClientArgs(c *Client) []string {
 	addIf(c.Obf.Timing > 0, "-obf-timing", c.Obf.Timing.String())
 	addIf(c.VK.ManualCaptcha, "-manual-captcha")
 	addIf(c.VK.Platform != def.VK.Platform, "-platform", string(c.VK.Platform))
+	addIf(c.SFU.FPS > 0, "-sfu-fps", strconv.Itoa(c.SFU.FPS))
+	addIf(c.SFU.Batch > 0, "-sfu-batch", strconv.Itoa(c.SFU.Batch))
 	addIf(c.DNS.Mode != def.DNS.Mode, "-dns-mode", c.DNS.Mode)
 	addIf(len(c.DNS.Servers) > 0, "-dns-servers", strings.Join(c.DNS.Servers, ","))
 	addIf(c.ClientID != "", "-client-id", c.ClientID)

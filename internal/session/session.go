@@ -148,7 +148,7 @@ func New(cfg *config.Client, deps Deps) (*Session, error) {
 	deps.Logger = logx.WithPrefix(deps.Logger, "[session="+id.String()+"] ")
 
 	total := cfg.TURN.N
-	if cfg.Provider.Name != config.ProviderDirect {
+	if cfg.Provider.Name != config.ProviderDirect && cfg.Provider.Name != config.ProviderSFU {
 		total *= max(len(cfg.VK.Links), 1)
 	}
 

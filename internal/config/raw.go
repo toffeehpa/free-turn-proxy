@@ -48,6 +48,9 @@ type raw struct {
 	TunnelConfig string
 	TunnelMTU    int
 
+	SFUFPS   int
+	SFUBatch int
+
 	KCP kcpmux.Profile
 }
 
@@ -122,6 +125,10 @@ func assemble(r raw) (*Client, error) {
 			n = DefaultDirectStreams
 		}
 	}
+	// Видеотрек один на клиента: лишние потоки зашли бы в звонок новыми гостями.
+	if r.Provider == ProviderSFU {
+		n = 1
+	}
 	platform := Platform(r.Platform)
 	if platform == "" {
 		platform = DefaultPlatform
@@ -164,6 +171,7 @@ func assemble(r raw) (*Client, error) {
 			Config: r.TunnelConfig,
 			MTU:    tunnelMTU,
 		},
+		SFU:      SFUOpts{FPS: r.SFUFPS, Batch: r.SFUBatch},
 		ClientID: r.ClientID,
 		SubURL:   r.SubURL,
 		Routes:   r.Routes,
