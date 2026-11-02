@@ -9,12 +9,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/logx"
-	"github.com/samosvalishe/free-turn-proxy/internal/netconn"
-	"github.com/samosvalishe/free-turn-proxy/internal/provider"
-	"github.com/samosvalishe/free-turn-proxy/internal/safego"
-	"github.com/samosvalishe/free-turn-proxy/internal/transport/dtlsdial"
-	"github.com/samosvalishe/free-turn-proxy/internal/transport/turndial"
+	"github.com/toffeehpa/free-turn-proxy/internal/logx"
+	"github.com/toffeehpa/free-turn-proxy/internal/netconn"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider"
+	"github.com/toffeehpa/free-turn-proxy/internal/safego"
+	"github.com/toffeehpa/free-turn-proxy/internal/transport/dtlsdial"
+	"github.com/toffeehpa/free-turn-proxy/internal/transport/turndial"
 )
 
 type deadlineRecorder struct {

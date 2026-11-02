@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/logx"
+	"github.com/toffeehpa/free-turn-proxy/internal/logx"
 )
 
 var ErrPanic = errors.New("safego: panic")

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/transport/dtlsdial"
+	"github.com/toffeehpa/free-turn-proxy/internal/transport/dtlsdial"
 )
 
 func newPairDeps(t *testing.T) (*Deps, net.PacketConn) {

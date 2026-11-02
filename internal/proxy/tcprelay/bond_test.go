@@ -9,11 +9,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/logx"
-	"github.com/samosvalishe/free-turn-proxy/internal/netconn"
-	"github.com/samosvalishe/free-turn-proxy/internal/proxy/bond"
-	"github.com/samosvalishe/free-turn-proxy/internal/proxy/tcpserver"
-	"github.com/samosvalishe/free-turn-proxy/internal/transport/kcpmux"
+	"github.com/toffeehpa/free-turn-proxy/internal/logx"
+	"github.com/toffeehpa/free-turn-proxy/internal/netconn"
+	"github.com/toffeehpa/free-turn-proxy/internal/proxy/bond"
+	"github.com/toffeehpa/free-turn-proxy/internal/proxy/tcpserver"
+	"github.com/toffeehpa/free-turn-proxy/internal/transport/kcpmux"
 	"github.com/xtaci/smux"
 )
 

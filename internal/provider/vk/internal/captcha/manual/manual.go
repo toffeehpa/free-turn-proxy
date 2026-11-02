@@ -20,11 +20,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/client/ish"
-	"github.com/samosvalishe/free-turn-proxy/internal/logx"
-	"github.com/samosvalishe/free-turn-proxy/internal/provider/vk/internal/browserprofile"
-	"github.com/samosvalishe/free-turn-proxy/internal/provider/vk/internal/captcha"
-	"github.com/samosvalishe/free-turn-proxy/internal/provider/vk/internal/personanet"
+	"github.com/toffeehpa/free-turn-proxy/internal/client/ish"
+	"github.com/toffeehpa/free-turn-proxy/internal/logx"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk/internal/browserprofile"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk/internal/captcha"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk/internal/personanet"
 )
 
 // debugFlag включает логирование проксируемого браузерного трафика.

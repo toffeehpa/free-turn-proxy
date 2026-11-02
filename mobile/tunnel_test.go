@@ -10,10 +10,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/config"
-	"github.com/samosvalishe/free-turn-proxy/internal/logx"
-	"github.com/samosvalishe/free-turn-proxy/internal/netctl"
-	"github.com/samosvalishe/free-turn-proxy/internal/tunnel"
+	"github.com/toffeehpa/free-turn-proxy/internal/config"
+	"github.com/toffeehpa/free-turn-proxy/internal/logx"
+	"github.com/toffeehpa/free-turn-proxy/internal/netctl"
+	"github.com/toffeehpa/free-turn-proxy/internal/tunnel"
 )
 
 func wgKey(b byte) string {

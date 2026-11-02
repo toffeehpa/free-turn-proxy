@@ -18,8 +18,8 @@ import (
 
 	"github.com/miekg/dns"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/logx"
-	"github.com/samosvalishe/free-turn-proxy/internal/netctl"
+	"github.com/toffeehpa/free-turn-proxy/internal/logx"
+	"github.com/toffeehpa/free-turn-proxy/internal/netctl"
 
 	// Mozilla CA roots для сборок без CGO.
 	_ "golang.org/x/crypto/x509roots/fallback"

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/uri"
+	"github.com/toffeehpa/free-turn-proxy/internal/uri"
 )
 
 func TestNormalizeVKLinks(t *testing.T) {

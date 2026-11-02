@@ -8,16 +8,16 @@ import (
 	"log"
 	"os"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/clientid"
-	"github.com/samosvalishe/free-turn-proxy/internal/config"
-	"github.com/samosvalishe/free-turn-proxy/internal/logx"
-	"github.com/samosvalishe/free-turn-proxy/internal/provider/vk"
-	"github.com/samosvalishe/free-turn-proxy/internal/proxy/udprelay"
-	"github.com/samosvalishe/free-turn-proxy/internal/session"
-	"github.com/samosvalishe/free-turn-proxy/internal/shutdown"
-	"github.com/samosvalishe/free-turn-proxy/internal/sub"
-	"github.com/samosvalishe/free-turn-proxy/internal/tunnel"
-	"github.com/samosvalishe/free-turn-proxy/internal/wire/rtpopus"
+	"github.com/toffeehpa/free-turn-proxy/internal/clientid"
+	"github.com/toffeehpa/free-turn-proxy/internal/config"
+	"github.com/toffeehpa/free-turn-proxy/internal/logx"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk"
+	"github.com/toffeehpa/free-turn-proxy/internal/proxy/udprelay"
+	"github.com/toffeehpa/free-turn-proxy/internal/session"
+	"github.com/toffeehpa/free-turn-proxy/internal/shutdown"
+	"github.com/toffeehpa/free-turn-proxy/internal/sub"
+	"github.com/toffeehpa/free-turn-proxy/internal/tunnel"
+	"github.com/toffeehpa/free-turn-proxy/internal/wire/rtpopus"
 )
 
 // version is populated at build time via -ldflags "-X main.version=...".

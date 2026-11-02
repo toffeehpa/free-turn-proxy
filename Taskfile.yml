@@ -51,7 +51,7 @@ tasks:
         -target android/arm64,android/arm
         -androidapi 24
         -javapkg com.freeturn.core
-        -ldflags "-checklinkname=0 -s -w -X github.com/samosvalishe/free-turn-proxy/mobile.version={{.VERSION}}"
+        -ldflags "-checklinkname=0 -s -w -X github.com/toffeehpa/free-turn-proxy/mobile.version={{.VERSION}}"
     cmds:
       - rm -rf dist/freeturn.aar dist/freeturn-sources.jar
       - mkdir -p dist

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/statedir"
+	"github.com/toffeehpa/free-turn-proxy/internal/statedir"
 )
 
 // PersonaStateFile - имя файла с поколением персоны рядом с client_config.json.

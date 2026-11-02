@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/uri"
+	"github.com/toffeehpa/free-turn-proxy/internal/uri"
 )
 
 // ClientJSON - JSON-схема конфигурации клиента (gomobile).

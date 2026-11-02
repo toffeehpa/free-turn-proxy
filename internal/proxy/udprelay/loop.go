@@ -10,12 +10,12 @@ import (
 	"time"
 
 	"github.com/cbeuw/connutil"
-	"github.com/samosvalishe/free-turn-proxy/internal/clientsdb"
-	"github.com/samosvalishe/free-turn-proxy/internal/provider"
-	"github.com/samosvalishe/free-turn-proxy/internal/randx"
-	"github.com/samosvalishe/free-turn-proxy/internal/transport/turndial"
-	"github.com/samosvalishe/free-turn-proxy/internal/wire"
-	"github.com/samosvalishe/free-turn-proxy/internal/wire/shape"
+	"github.com/toffeehpa/free-turn-proxy/internal/clientsdb"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider"
+	"github.com/toffeehpa/free-turn-proxy/internal/randx"
+	"github.com/toffeehpa/free-turn-proxy/internal/transport/turndial"
+	"github.com/toffeehpa/free-turn-proxy/internal/wire"
+	"github.com/toffeehpa/free-turn-proxy/internal/wire/shape"
 )
 
 // errPairRecycled - пару свернул TURN-цикл (аллокация мертва), а не сеть: сетевой

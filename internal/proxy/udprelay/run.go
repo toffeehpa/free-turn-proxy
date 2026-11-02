@@ -10,10 +10,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/logx"
-	"github.com/samosvalishe/free-turn-proxy/internal/safego"
-	"github.com/samosvalishe/free-turn-proxy/internal/stats"
-	"github.com/samosvalishe/free-turn-proxy/internal/transport/dtlsdial"
+	"github.com/toffeehpa/free-turn-proxy/internal/logx"
+	"github.com/toffeehpa/free-turn-proxy/internal/safego"
+	"github.com/toffeehpa/free-turn-proxy/internal/stats"
+	"github.com/toffeehpa/free-turn-proxy/internal/transport/dtlsdial"
 )
 
 // AuthHandler определяет интерфейс взаимодействия с провайдером при ошибках авторизации.

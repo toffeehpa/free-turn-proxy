@@ -8,7 +8,7 @@ import (
 
 	dtlsnet "github.com/pion/dtls/v3/pkg/net"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/randx"
+	"github.com/toffeehpa/free-turn-proxy/internal/randx"
 )
 
 const (

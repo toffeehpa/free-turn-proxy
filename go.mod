@@ -1,4 +1,4 @@
-module github.com/samosvalishe/free-turn-proxy
+module github.com/toffeehpa/free-turn-proxy
 
 go 1.26.7
 

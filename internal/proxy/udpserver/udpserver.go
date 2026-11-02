@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/logx"
+	"github.com/toffeehpa/free-turn-proxy/internal/logx"
 )
 
 const (

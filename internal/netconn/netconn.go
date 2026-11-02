@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/pion/transport/v4"
-	"github.com/samosvalishe/free-turn-proxy/internal/netctl"
+	"github.com/toffeehpa/free-turn-proxy/internal/netctl"
 )
 
 type DirectNet struct{}

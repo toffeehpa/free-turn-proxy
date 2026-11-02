@@ -7,9 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/config"
-	"github.com/samosvalishe/free-turn-proxy/internal/netconn"
-	"github.com/samosvalishe/free-turn-proxy/internal/safego"
+	"github.com/toffeehpa/free-turn-proxy/internal/config"
+	"github.com/toffeehpa/free-turn-proxy/internal/netconn"
+	"github.com/toffeehpa/free-turn-proxy/internal/safego"
 )
 
 func newTestSession(t *testing.T, opts Options, captcha func() bool) *Session {

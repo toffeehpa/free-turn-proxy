@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/config"
+	"github.com/toffeehpa/free-turn-proxy/internal/config"
 )
 
 func newWakeSession(t *testing.T, window time.Duration) *Session {

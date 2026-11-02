@@ -6,8 +6,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/uri"
-	"github.com/samosvalishe/free-turn-proxy/internal/wire/rtpopus"
+	"github.com/toffeehpa/free-turn-proxy/internal/uri"
+	"github.com/toffeehpa/free-turn-proxy/internal/wire/rtpopus"
 )
 
 const uriScheme = "freeturn://"

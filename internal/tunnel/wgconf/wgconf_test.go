@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/tunnel"
+	"github.com/toffeehpa/free-turn-proxy/internal/tunnel"
 )
 
 var (

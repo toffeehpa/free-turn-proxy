@@ -5,7 +5,7 @@ import (
 
 	"github.com/pion/logging"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/logx"
+	"github.com/toffeehpa/free-turn-proxy/internal/logx"
 )
 
 type logxFactory struct {

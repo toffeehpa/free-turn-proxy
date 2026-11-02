@@ -6,7 +6,7 @@ import (
 	"net"
 	"net/netip"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/netctl"
+	"github.com/toffeehpa/free-turn-proxy/internal/netctl"
 )
 
 func Direct(ctx context.Context, peer *net.UDPAddr) (*Stream, error) {

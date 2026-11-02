@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/transport/kcpmux"
-	"github.com/samosvalishe/free-turn-proxy/internal/tunnel"
-	"github.com/samosvalishe/free-turn-proxy/internal/uri"
-	"github.com/samosvalishe/free-turn-proxy/internal/wire/rtpopus"
+	"github.com/toffeehpa/free-turn-proxy/internal/transport/kcpmux"
+	"github.com/toffeehpa/free-turn-proxy/internal/tunnel"
+	"github.com/toffeehpa/free-turn-proxy/internal/uri"
+	"github.com/toffeehpa/free-turn-proxy/internal/wire/rtpopus"
 )
 
 // raw хранит неразобранные строковые опции до этапа assemble.

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/netconn"
+	"github.com/toffeehpa/free-turn-proxy/internal/netconn"
 	"github.com/xtaci/smux"
 )
 

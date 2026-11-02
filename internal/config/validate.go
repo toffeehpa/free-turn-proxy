@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/proxy/bond"
-	"github.com/samosvalishe/free-turn-proxy/internal/transport/kcpmux"
-	"github.com/samosvalishe/free-turn-proxy/internal/tunnel"
+	"github.com/toffeehpa/free-turn-proxy/internal/proxy/bond"
+	"github.com/toffeehpa/free-turn-proxy/internal/transport/kcpmux"
+	"github.com/toffeehpa/free-turn-proxy/internal/tunnel"
 )
 
 // Validate проверяет валидность конфигурации Client.

@@ -8,8 +8,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/config"
-	"github.com/samosvalishe/free-turn-proxy/internal/logx"
+	"github.com/toffeehpa/free-turn-proxy/internal/config"
+	"github.com/toffeehpa/free-turn-proxy/internal/logx"
 )
 
 type diagnosticLog struct {

@@ -9,8 +9,8 @@ import (
 
 	"github.com/pion/dtls/v3"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/logx"
-	"github.com/samosvalishe/free-turn-proxy/internal/transport/dtlsdial"
+	"github.com/toffeehpa/free-turn-proxy/internal/logx"
+	"github.com/toffeehpa/free-turn-proxy/internal/transport/dtlsdial"
 )
 
 func echoBackend(t *testing.T) string {

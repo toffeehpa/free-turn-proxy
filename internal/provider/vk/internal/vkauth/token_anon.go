@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/provider/vk/internal/browserprofile"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk/internal/browserprofile"
 
 	tlsclient "github.com/bogdanfinn/tls-client"
 )

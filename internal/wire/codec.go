@@ -8,10 +8,10 @@ import (
 
 	dtlsnet "github.com/pion/dtls/v3/pkg/net"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/wire/rtpopus"
-	"github.com/samosvalishe/free-turn-proxy/internal/wire/rtpopus2"
-	"github.com/samosvalishe/free-turn-proxy/internal/wire/rtpopus3"
-	"github.com/samosvalishe/free-turn-proxy/internal/wire/shape"
+	"github.com/toffeehpa/free-turn-proxy/internal/wire/rtpopus"
+	"github.com/toffeehpa/free-turn-proxy/internal/wire/rtpopus2"
+	"github.com/toffeehpa/free-turn-proxy/internal/wire/rtpopus3"
+	"github.com/toffeehpa/free-turn-proxy/internal/wire/shape"
 )
 
 const (

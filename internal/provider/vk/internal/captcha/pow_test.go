@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/provider/vk/internal/browserprofile"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk/internal/browserprofile"
 )
 
 // Живая страница captcha, снятая целиком: PoW-скрипт обфусцирован, поэтому

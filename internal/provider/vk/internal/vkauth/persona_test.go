@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/provider/vk/internal/browserprofile"
-	"github.com/samosvalishe/free-turn-proxy/internal/provider/vk/internal/captcha"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk/internal/browserprofile"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk/internal/captcha"
 
 	tlsclient "github.com/bogdanfinn/tls-client"
 )

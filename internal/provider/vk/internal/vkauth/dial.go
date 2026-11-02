@@ -1,8 +1,8 @@
 package vkauth
 
 import (
-	"github.com/samosvalishe/free-turn-proxy/internal/provider/vk/internal/browserprofile"
-	"github.com/samosvalishe/free-turn-proxy/internal/provider/vk/internal/personanet"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk/internal/browserprofile"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk/internal/personanet"
 
 	tlsclient "github.com/bogdanfinn/tls-client"
 )

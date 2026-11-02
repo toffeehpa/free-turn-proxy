@@ -11,15 +11,15 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/client/dnsdial"
-	"github.com/samosvalishe/free-turn-proxy/internal/config"
-	"github.com/samosvalishe/free-turn-proxy/internal/provider/vk"
-	"github.com/samosvalishe/free-turn-proxy/internal/safego"
-	"github.com/samosvalishe/free-turn-proxy/internal/session"
-	"github.com/samosvalishe/free-turn-proxy/internal/statedir"
-	"github.com/samosvalishe/free-turn-proxy/internal/sub"
-	"github.com/samosvalishe/free-turn-proxy/internal/tunnel"
-	"github.com/samosvalishe/free-turn-proxy/internal/tunnel/awg"
+	"github.com/toffeehpa/free-turn-proxy/internal/client/dnsdial"
+	"github.com/toffeehpa/free-turn-proxy/internal/config"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk"
+	"github.com/toffeehpa/free-turn-proxy/internal/safego"
+	"github.com/toffeehpa/free-turn-proxy/internal/session"
+	"github.com/toffeehpa/free-turn-proxy/internal/statedir"
+	"github.com/toffeehpa/free-turn-proxy/internal/sub"
+	"github.com/toffeehpa/free-turn-proxy/internal/tunnel"
+	"github.com/toffeehpa/free-turn-proxy/internal/tunnel/awg"
 )
 
 // Состояния подключения (session.Phase*).

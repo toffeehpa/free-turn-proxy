@@ -6,9 +6,9 @@ import (
 	"net"
 	"sync"
 
-	"github.com/samosvalishe/free-turn-proxy/internal/provider/vk/internal/browserprofile"
-	"github.com/samosvalishe/free-turn-proxy/internal/provider/vk/internal/captcha"
-	manualcaptcha "github.com/samosvalishe/free-turn-proxy/internal/provider/vk/internal/captcha/manual"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk/internal/browserprofile"
+	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk/internal/captcha"
+	manualcaptcha "github.com/toffeehpa/free-turn-proxy/internal/provider/vk/internal/captcha/manual"
 )
 
 var proxyManualMu sync.Mutex
