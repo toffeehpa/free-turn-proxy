@@ -67,12 +67,16 @@ task clean          # удалить dist/, cover.out, cover.html
 - [URI и форматы ссылок](./docs/uri.md)
 - [Подписки (Subscriptions)](./docs/sub.md)
 - [Провайдеры](./docs/providers.md)
+- [SFU-Канал (экспериментально)](./docs/sfu.md)
 - [Решение проблем](./docs/troubleshooting.md)
 
 ## Благодарности
+
+Исходный код проекта написал [@samosvalishe](https://github.com/samosvalishe) (Антон) - прежний владелец репозитория. Он отказался от проекта, а мы продолжили его развитие. Спасибо за фундамент.
 
 Огромное спасибо за вклад и идеи:
 - [@cacggghp](https://github.com/cacggghp)
 - [@Moroka8](https://github.com/Moroka8)
 - [@alxmcp](https://github.com/alxmcp)
 - [@TheAirBlow](https://github.com/TheAirBlow)
+- [@zarazaex69](https://github.com/zarazaex69)
