@@ -29,6 +29,10 @@ WEB_PROBE_EXT=".ok"
 
 SERVICE="free-turn-proxy.service"
 UNIT_FILE="/etc/systemd/system/$SERVICE"
+BRIDGE_BIN="$PREFIX/sfubridge"
+BRIDGE_VERFILE="$PREFIX/sfubridge.version"
+BRIDGE_SERVICE="freeturn-sfubridge.service"
+BRIDGE_UNIT="/etc/systemd/system/$BRIDGE_SERVICE"
 CONTAINER="free-turn-proxy"
 GUM_VERSION="0.17.0"
 
@@ -67,6 +71,7 @@ WG_NET="10.13.13.0/24"
 OBF_PROFILE="rtpopus3"         # rtpopus3 | rtpopus2 | rtpopus | none
 OBF_KEY=""
 KCP_ARGS=""                    # argv-токены -kcp-* сервера, только tcp
+SFU_ROOM=""                    # ссылка звонка для sfubridge; пусто - без моста
 FT_WEB_PORT="${FT_WEB_PORT:-8080}"
 FT_WEB_TTL="${FT_WEB_TTL:-900}"
 
@@ -100,6 +105,7 @@ valid_hostport() {
     [[ "$1" =~ ^(\[[0-9a-fA-F:]{2,39}\]|[a-zA-Z0-9.-]{1,253}):([0-9]{1,5})$ ]] && valid_port "${BASH_REMATCH[2]}"
 }
 valid_kcp()    { [[ "$1" =~ ^((-kcp-(nodelay|interval|resend|nc|sndwnd|rcvwnd|mtu)\ [0-9]{1,6}|-kcp-acknodelay=(true|false))( |$))*$ ]]; }
+valid_sfu_room() { [ -z "$1" ] || [[ "$1" =~ ^https://(m\.)?vk\.(ru|com)/call/join/[A-Za-z0-9_-]+/?$ ]]; }
 valid_version() { [[ "$1" =~ ^(latest|local|v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?)$ ]]; }
 
 # Подсеть WG: сетевой адрес, префикс /16../29 (сервер .1, клиенты с .2).
@@ -523,6 +529,7 @@ WG_NET="$WG_NET"
 OBF_PROFILE="$OBF_PROFILE"
 OBF_KEY="$OBF_KEY"
 KCP_ARGS="$KCP_ARGS"
+SFU_ROOM="$SFU_ROOM"
 FT_WEB_PORT="$FT_WEB_PORT"
 FT_WEB_TTL="$FT_WEB_TTL"
 EOF
@@ -545,6 +552,7 @@ validate_config() {
     fi
     [ -z "$LOCAL_BIN" ] || [ -f "$LOCAL_BIN" ] || fail bad_arg "bin: нет файла $LOCAL_BIN"
     valid_kcp "$KCP_ARGS"                         || fail bad_arg "kcp: неверные параметры"
+    valid_sfu_room "$SFU_ROOM"                    || fail bad_arg "sfu-room: https://vk.ru/call/join/<код>"
     valid_port "$FT_WEB_PORT"                     || fail bad_arg "web-port: 1-65535"
     [[ "$FT_WEB_TTL" =~ ^[0-9]{2,6}$ ]] && [ "$FT_WEB_TTL" -ge 60 ] || fail bad_arg "web-ttl: от 60 секунд"
 
@@ -741,6 +749,72 @@ EOF
     systemctl daemon-reload
     systemctl enable "$SERVICE" >/dev/null 2>&1 || true
     systemctl restart "$SERVICE" || fail start_failed "systemctl restart $SERVICE"
+}
+
+# Мост для клиентов с -provider sfu. Отдельный бинарь рядом с server при любом методе:
+# docker сервера в host-сети, мост достаёт его по 127.0.0.1. Мост - эксперимент, поэтому
+# его отказ только предупреждение: TURN-клиенты не должны лишаться сервера из-за него.
+bridge_asset() { server_asset | sed 's/^server/sfubridge/'; }
+
+bridge_ensure() {
+    local ver=$VERSION asset base tmp want got
+    [ "$ver" = local ] && ver=latest
+    if [ -x "$BRIDGE_BIN" ] && [ "$FORCE_UPDATE" != 1 ] && [ "$(cat "$BRIDGE_VERFILE" 2>/dev/null || true)" = "$ver" ]; then
+        return 0
+    fi
+    asset=$(bridge_asset) || { log_warn "SFU-мост: архитектура $(uname -m) не поддерживается"; return 1; }
+    base="$RELEASES_URL/download/$ver"
+    [ "$ver" = latest ] && base="$RELEASES_URL/latest/download"
+    tmp=$(mktemp -d)
+    if ! step "Скачивание $asset ($ver)" _dl "$base/$asset" "$tmp/sfubridge" \
+        || ! _dl "$base/checksums.txt" "$tmp/sums" 2>/dev/null; then
+        rm -rf "$tmp"
+        log_warn "SFU-мост: не удалось скачать $base/$asset"
+        return 1
+    fi
+    want=$(awk -v n="$asset" '$2 == n { print $1 }' "$tmp/sums")
+    got=$(sha256sum "$tmp/sfubridge" | awk '{ print $1 }')
+    if [ -z "$want" ] || [ "$want" != "$got" ]; then
+        rm -rf "$tmp"
+        log_warn "SFU-мост: sha256 $asset не совпал с checksums.txt"
+        return 1
+    fi
+    chmod 0755 "$tmp/sfubridge"
+    mv -f "$tmp/sfubridge" "$BRIDGE_BIN"
+    rm -rf "$tmp"
+    echo "$ver" > "$BRIDGE_VERFILE"
+}
+
+bridge_remove() {
+    [ -f "$BRIDGE_UNIT" ] || return 0
+    systemctl disable --now "$BRIDGE_SERVICE" >/dev/null 2>&1 || true
+    rm -f "$BRIDGE_UNIT"
+    systemctl daemon-reload 2>/dev/null || true
+}
+
+bridge_apply() {
+    if [ -z "$SFU_ROOM" ]; then bridge_remove; return 0; fi
+    has_systemd || { log_warn "systemd не найден - SFU-мост не поставлен"; return 0; }
+    bridge_ensure || { bridge_remove; return 0; }
+    cat > "$BRIDGE_UNIT" <<EOF
+[Unit]
+Description=Free Turn Proxy SFU bridge
+After=network-online.target $SERVICE
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=$BRIDGE_BIN -room $SFU_ROOM -forward 127.0.0.1:$LISTEN_PORT
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    chmod 0644 "$BRIDGE_UNIT"
+    systemctl daemon-reload
+    systemctl enable "$BRIDGE_SERVICE" >/dev/null 2>&1 || true
+    systemctl restart "$BRIDGE_SERVICE" || log_warn "SFU-мост не запустился: systemctl restart $BRIDGE_SERVICE"
 }
 
 ft_apply() {
@@ -1048,6 +1122,7 @@ apply_config() {
     [ "$BACKEND" = new ] && wg_apply
     save_config
     ft_apply
+    bridge_apply
     clients_sync
     install_cli
 }
@@ -1071,8 +1146,9 @@ do_uninstall() {
     case "$target" in
         freeturn|all)
             ft_remove
+            bridge_remove
             firewall_close_port "$LISTEN_PORT" udp
-            rm -f "$BIN" "$VERFILE"
+            rm -f "$BIN" "$VERFILE" "$BRIDGE_BIN" "$BRIDGE_VERFILE"
             log_success "FreeTurn удалён." ;;
     esac
     case "$target" in
@@ -1115,9 +1191,9 @@ require_name() {
 conf_b64() { [ -f "$1" ] && base64 < "$1" | tr -d '\n'; }
 
 config_json() {
-    printf '{"method":"%s","backend":"%s","connect":"%s","host":"%s","listen_port":%s,"wg_port":%s,"wg_net":"%s","mode":"%s","obf_profile":"%s","obf_key":"%s","version":"%s"}' \
+    printf '{"method":"%s","backend":"%s","connect":"%s","host":"%s","listen_port":%s,"wg_port":%s,"wg_net":"%s","mode":"%s","obf_profile":"%s","obf_key":"%s","version":"%s","sfu_room":"%s"}' \
         "$INSTALL_METHOD" "$BACKEND" "$CONNECT" "$PUBLIC_HOST" "$LISTEN_PORT" "$WG_PORT" "$WG_NET" \
-        "$PROXY_MODE" "$OBF_PROFILE" "$OBF_KEY" "$VERSION"
+        "$PROXY_MODE" "$OBF_PROFILE" "$OBF_KEY" "$VERSION" "$SFU_ROOM"
 }
 
 client_json() { # meta-строка, вывод wg show latest-handshakes
@@ -1285,6 +1361,7 @@ parse_opts() {
             --bin=*)         LOCAL_BIN=$v; VERSION=local ;;
             --web-port=*)    FT_WEB_PORT=$v ;;
             --web-ttl=*)     FT_WEB_TTL=$v ;;
+            --sfu-room=*)    SFU_ROOM=$v ;;
             --kcp-nodelay=*|--kcp-interval=*|--kcp-resend=*|--kcp-nc=*|--kcp-sndwnd=*|--kcp-rcvwnd=*|--kcp-mtu=*)
                 a=${a%%=*}
                 [[ "$v" =~ ^[0-9]{1,6}$ ]] || fail bad_arg "$a: число"
@@ -1675,6 +1752,7 @@ Free Turn Proxy - установщик и контроллер сервера.
   --bin=PATH               свой бинарь сервера вместо релиза (version=local)
   --kcp-*=N                параметры KCP сервера для --mode=tcp
   --web-port=N --web-ttl=S веб-раздача файлов клиентов (default 8080, 900 c)
+  --sfu-room=URL           ссылка звонка для SFU-моста (клиенты -provider sfu); пусто - без моста
 
 JSON RPC (приложение, proto $PROTO_VERSION):
   freeturn <${RPC_COMMANDS// /|}> [--ключ=значение ...]
