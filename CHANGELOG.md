@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.1.0](https://github.com/toffeehpa/free-turn-proxy/compare/v4.0.1...v4.1.0) (2026-11-02)
+
+
+### Features
+
+* **client:** провайдер sfu - видеотрек через SFU звонка вместо TURN ([6d5db0b](https://github.com/toffeehpa/free-turn-proxy/commit/6d5db0b71a6da3c6713766729a5c69a81ca8ef81))
+* **installer:** sfu-мост по --sfu-room рядом с сервером ([179c533](https://github.com/toffeehpa/free-turn-proxy/commit/179c533a15ecf7f9c042db77a8e3623c5b51b07c))
+* **sfubridge:** мост между звонком и сервером ([17f750d](https://github.com/toffeehpa/free-turn-proxy/commit/17f750dbc27ec31895f3e7fc5d950fcb75000898))
+* **sfu:** движок vkcalls и транспорт vp8channel из olcRTC ([d951c4c](https://github.com/toffeehpa/free-turn-proxy/commit/d951c4c8de7cc13f2cc06f50d72e4b1f84e37ef4))
+
 ## [4.0.1](https://github.com/samosvalishe/free-turn-proxy/compare/v4.0.0...v4.0.1) (2026-09-24)
 
 
