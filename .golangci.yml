@@ -68,6 +68,7 @@ linters:
       - third_party$
       - builtin$
       - examples$
+      - internal/sfu/(auth|engine|hostprofile|logger|protect|roomhint|transport)/
     rules:
       - linters:
           - errcheck

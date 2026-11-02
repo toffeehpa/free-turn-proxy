@@ -1,0 +1,37 @@
+free-turn-proxy / internal/sfu
+
+The packages below this directory, except sfu.go, are derived from olcRTC
+(https://github.com/ghostlane-project/olcrtc, branch proofkit, commit
+01a8fcb6db0b6d6b9e81b5812748482b728a3323), licensed under the Apache License,
+Version 2.0. The licence text is in ./LICENSE.
+
+The upstream NOTICE reads, in part:
+
+    olcRTC
+    Copyright 2026 olcRTC contributors
+
+    This project is derived from https://github.com/openlibrecommunity/olcrtc.
+    The original project is copyright (C) 2026 zarazaex and was published under
+    the WTFPL, version 2.
+
+    Modifications and additional work in this fork:
+    Copyright 2026 Roman Podpriatov and the olcRTC contributors
+
+Copied packages: auth, auth/vkcalls, engine, engine/builtin, engine/vkcalls,
+hostprofile, logger, protect, roomhint, transport, transport/common,
+transport/vp8channel. Tests that depend on parts of olcRTC not copied here
+were left out.
+
+Changes made in free-turn-proxy:
+  - all files: import paths moved from github.com/openlibrecommunity/olcrtc/internal
+    to this module's internal/sfu.
+  - engine/builtin/builtin.go: only the vkcalls provider and engine are registered;
+    the other providers and engines are not included.
+  - transport/vp8channel/kcp.go: buffer profile read from hostprofile directly
+    instead of the runtime package, which is not included.
+
+sfu.go is new code of free-turn-proxy that connects this transport to the
+core (client handshake with the bridge, datagram routing).
+
+Third-party modules used by this code: pion/* (MIT), xtaci/kcp-go (MIT),
+gorilla/websocket (BSD-3-Clause), theodorsm/covert-dtls (MIT).
