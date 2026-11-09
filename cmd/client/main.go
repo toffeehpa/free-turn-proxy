@@ -11,12 +11,9 @@ import (
 	"github.com/toffeehpa/free-turn-proxy/internal/clientid"
 	"github.com/toffeehpa/free-turn-proxy/internal/config"
 	"github.com/toffeehpa/free-turn-proxy/internal/logx"
-	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk"
 	"github.com/toffeehpa/free-turn-proxy/internal/proxy/udprelay"
-	"github.com/toffeehpa/free-turn-proxy/internal/session"
 	"github.com/toffeehpa/free-turn-proxy/internal/shutdown"
 	"github.com/toffeehpa/free-turn-proxy/internal/sub"
-	"github.com/toffeehpa/free-turn-proxy/internal/tunnel"
 	"github.com/toffeehpa/free-turn-proxy/internal/wire/rtpopus"
 )
 
@@ -71,24 +68,25 @@ func main() {
 	cfg.ClientID = id
 	logger.Infof("Client ID: %s", cfg.ClientID)
 
-	if cfg.Tunnel.Enabled() {
-		logger.Warnf("ссылка содержит конфиг %s: CLI встроенный туннель не поднимает, запустите WireGuard/AmneziaWG отдельно", cfg.Tunnel.Mode)
-		cfg.Tunnel.Mode = tunnel.ModeNone
-	}
-
-	ctx, stop := shutdown.Watch(context.Background(), logger)
-	defer stop()
-
-	sess, err := session.New(cfg, session.Deps{
-		Logger: logger,
-		Solver: vk.DefaultManualSolver,
-	})
+	vpn, err := setupTun(cfg, logger)
 	if err != nil {
 		logger.Errorf("%v", err)
 		os.Exit(1)
 	}
 
-	if err := sess.Run(ctx); err != nil {
+	ctx, stop := shutdown.Watch(context.Background(), logger)
+	defer stop()
+
+	sess, err := newSession(cfg, vpn, logger)
+	if err != nil {
+		logger.Errorf("%v", err)
+		os.Exit(1)
+	}
+
+	err = sess.Run(ctx)
+	// Адаптер снимаем до выхода: os.Exit пропустил бы defer.
+	vpn.close()
+	if err != nil {
 		if errors.Is(err, udprelay.ErrFatal) {
 			logger.Errorf("fatal: %v", err)
 		} else {

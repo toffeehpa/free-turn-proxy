@@ -11,6 +11,7 @@ import (
 
 	"github.com/amnezia-vpn/amneziawg-go/v3/conn"
 	"github.com/amnezia-vpn/amneziawg-go/v3/device"
+	"github.com/amnezia-vpn/amneziawg-go/v3/tun"
 
 	"github.com/toffeehpa/free-turn-proxy/internal/logx"
 	"github.com/toffeehpa/free-turn-proxy/internal/tunnel"
@@ -53,7 +54,28 @@ func (b *Backend) Up(cfg *tunnel.Config, tunFD int) error {
 	if err != nil {
 		return err
 	}
+	return b.upLocked(cfg, uapi, tunDev)
+}
 
+// UpDevice - то же, что Up, но поверх готового tun.Device: на Windows адаптер
+// Wintun создаёт само ядро, дескриптора от платформы там нет.
+func (b *Backend) UpDevice(cfg *tunnel.Config, tunDev tun.Device) error {
+	uapi, err := tunnel.UAPI(cfg)
+	if err != nil {
+		_ = tunDev.Close()
+		return err
+	}
+
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	if b.dev != nil {
+		_ = tunDev.Close()
+		return errors.New("awg: tunnel is already up")
+	}
+	return b.upLocked(cfg, uapi, tunDev)
+}
+
+func (b *Backend) upLocked(cfg *tunnel.Config, uapi string, tunDev tun.Device) error {
 	bind := b.deps.Bind
 	if bind == nil {
 		bind = conn.NewDefaultBind()
