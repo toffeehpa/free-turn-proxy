@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/toffeehpa/free-turn-proxy/internal/tunnel"
 	"github.com/toffeehpa/free-turn-proxy/internal/uri"
 	"github.com/toffeehpa/free-turn-proxy/internal/wire/rtpopus"
 )
@@ -63,6 +64,8 @@ func ParseClient(args []string, errOut io.Writer) (*Client, error) {
 	fs.StringVar(&r.ClientID, "client-id", r.ClientID, "уникальный ID клиента (автогенерация если не задан)")
 	fs.StringVar(&r.SubURL, "sub", r.SubURL, "URL подписки (sub.md) для получения списка серверов")
 	fs.BoolVar(&r.Routes, "routes", r.Routes, "автоматическое управление маршрутами к TURN-серверам; требует прав администратора")
+	fs.BoolVar(&r.Tun, "tun", r.Tun, "поднять встроенный WireGuard/AmneziaWG из ссылки через Wintun; только Windows, нужны права администратора и wintun.dll")
+	fs.StringVar(&r.TunnelConfig, "tun-conf", r.TunnelConfig, "конфиг WireGuard/AmneziaWG для -tun текстом, как поле wg в ссылке; ссылка его перекрывает")
 	kcp := registerKCPFlags(fs, r.KCP)
 
 	if err := fs.Parse(args); err != nil {
@@ -77,6 +80,10 @@ func ParseClient(args []string, errOut io.Writer) (*Client, error) {
 		r.applyURI(u)
 	}
 	r.KCP = kcp.profile()
+	// Конфиг без ссылки (-tun-conf) - тот же awg-режим, что и поле wg.
+	if r.TunnelConfig != "" && (r.TunnelMode == "" || r.TunnelMode == string(tunnel.ModeNone)) {
+		r.TunnelMode = "awg"
+	}
 
 	c, err := assemble(r)
 	if err != nil {

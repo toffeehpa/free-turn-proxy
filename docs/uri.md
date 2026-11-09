@@ -37,6 +37,7 @@ Payload - JSON-объект, закодированный `base64url` (без pa
 | `dnss` | `-dns-servers` | свои DNS через запятую. |
 | `mcap` | `-manual-captcha` | ручная captcha (`true`). |
 | `kcp` | `-kcp-*` | профиль ARQ для `mode: tcp` (`nodelay`, `interval`, `resend`, `nc`, `sndwnd`, `rcvwnd`, `mtu`, `acknodelay`); отсутствует - дефолт. |
+| `wg` | `-tun-conf` | конфиг WireGuard/AmneziaWG текстом; с `-tun` клиент поднимает туннель сам (Windows), без него поле игнорируется. |
 | `name` | - | имя клиента / комментарий. |
 
 > [!NOTE]

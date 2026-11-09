@@ -43,6 +43,7 @@ type raw struct {
 	ClientID string
 	SubURL   string
 	Routes   bool
+	Tun      bool
 
 	TunnelMode   string
 	TunnelConfig string
@@ -175,6 +176,7 @@ func assemble(r raw) (*Client, error) {
 		ClientID: r.ClientID,
 		SubURL:   r.SubURL,
 		Routes:   r.Routes,
+		Tun:      r.Tun,
 	}
 
 	if r.DNSServers != "" {
