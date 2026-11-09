@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.2.0](https://github.com/toffeehpa/free-turn-proxy/compare/v4.1.0...v4.2.0) (2026-11-09)
+
+
+### Features
+
+* **tunnel:** встроенный туннель через wintun ([3c20a51](https://github.com/toffeehpa/free-turn-proxy/commit/3c20a51d35a2812017ac87368e5310b15e287faf))
+
+
+### Bug Fixes
+
+* **deps:** brotli и compress с исправлениями уязвимостей ([abea87a](https://github.com/toffeehpa/free-turn-proxy/commit/abea87a68f1c853fc06420a07d6c8ff57676b95f))
+
 ## [4.1.0](https://github.com/toffeehpa/free-turn-proxy/compare/v4.0.1...v4.1.0) (2026-11-02)
 
 
