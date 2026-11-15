@@ -156,23 +156,111 @@ func rewriteProxyRedirectLocation(raw string, targetURL *neturl.URL) (string, bo
 	return localCaptchaURLForTarget(parsed), true
 }
 
-func rewriteProxyHeaderURL(raw string, targetURL *neturl.URL) string {
-	if raw == "" {
-		return raw
+// extPrefix - сторонний ресурс по пути /ext/<scheme>/<host>/<path>: chunks/ и
+// шрифты виджет считает от адреса своего скрипта.
+const extPrefix = "/ext/"
+
+func localExtPath(u *neturl.URL) string {
+	p := u.EscapedPath()
+	if p == "" {
+		p = "/"
 	}
-	parsed, err := neturl.Parse(raw)
-	if err != nil {
-		return raw
+	s := extPrefix + u.Scheme + "/" + u.Host + p
+	if u.RawQuery != "" {
+		s += "?" + u.RawQuery
 	}
-	if parsed.Scheme != "http" || !isLocalCaptchaHost(parsed.Host) {
-		return raw
+	if u.Fragment != "" {
+		s += "#" + u.EscapedFragment()
 	}
-	parsed.Scheme = targetURL.Scheme
-	parsed.Host = targetURL.Host
-	return parsed.String()
+	return s
 }
 
-func rewriteProxyRequest(req *http.Request, targetURL *neturl.URL) {
+func parseLocalExtPath(escapedPath, rawQuery string) (*neturl.URL, bool) {
+	rest, ok := strings.CutPrefix(escapedPath, extPrefix)
+	if !ok {
+		return nil, false
+	}
+	scheme, rest, ok := strings.Cut(rest, "/")
+	if !ok || (scheme != "https" && scheme != "http") {
+		return nil, false
+	}
+	host, path, _ := strings.Cut(rest, "/")
+	if host == "" {
+		return nil, false
+	}
+	u, err := neturl.Parse(scheme + "://" + host + "/" + path)
+	// userinfo и прочие сюрпризы в host - мимо
+	if err != nil || u.Host != host {
+		return nil, false
+	}
+	u.RawQuery = rawQuery
+	return u, true
+}
+
+// upstreamForLocal - адрес, который был бы у живого браузера.
+func upstreamForLocal(raw string, pageURL *neturl.URL) (*neturl.URL, bool) {
+	parsed, err := neturl.Parse(raw)
+	if err != nil || parsed.Scheme != "http" || !isLocalCaptchaHost(parsed.Host) {
+		return nil, false
+	}
+	if ext, ok := parseLocalExtPath(parsed.EscapedPath(), parsed.RawQuery); ok {
+		return ext, true
+	}
+	parsed.Scheme = pageURL.Scheme
+	parsed.Host = pageURL.Host
+	return parsed, true
+}
+
+func sameOrigin(a, b *neturl.URL) bool {
+	return strings.EqualFold(a.Scheme, b.Scheme) && strings.EqualFold(a.Host, b.Host)
+}
+
+// siteOf - по двум последним меткам, для доменов VK хватает.
+func siteOf(host string) string {
+	labels := strings.Split(strings.ToLower(host), ".")
+	if len(labels) <= 2 {
+		return strings.Join(labels, ".")
+	}
+	return strings.Join(labels[len(labels)-2:], ".")
+}
+
+func fetchSite(initiator, target *neturl.URL) string {
+	switch {
+	case sameOrigin(initiator, target):
+		return "same-origin"
+	case strings.EqualFold(initiator.Scheme, target.Scheme) && siteOf(initiator.Hostname()) == siteOf(target.Hostname()):
+		return "same-site"
+	default:
+		return "cross-site"
+	}
+}
+
+// Для браузера всё лежит на localhost, апстриму - заголовки со страницы капчи.
+func rewriteBrowserContext(req *http.Request, targetURL, pageURL *neturl.URL) {
+	var initiator *neturl.URL
+	if origin := req.Header.Get("Origin"); origin != "" {
+		if u, ok := upstreamForLocal(origin, pageURL); ok {
+			initiator = u
+			req.Header.Set("Origin", u.Scheme+"://"+u.Host)
+		}
+	}
+	if referer := req.Header.Get("Referer"); referer != "" {
+		if u, ok := upstreamForLocal(referer, pageURL); ok {
+			initiator = u
+			// strict-origin-when-cross-origin: чужому хосту - только origin
+			if sameOrigin(u, targetURL) {
+				req.Header.Set("Referer", u.String())
+			} else {
+				req.Header.Set("Referer", u.Scheme+"://"+u.Host+"/")
+			}
+		}
+	}
+	if initiator != nil && req.Header.Get("Sec-Fetch-Site") == "same-origin" {
+		req.Header.Set("Sec-Fetch-Site", fetchSite(initiator, targetURL))
+	}
+}
+
+func rewriteProxyRequest(req *http.Request, targetURL, pageURL *neturl.URL) {
 	req.URL.Scheme = targetURL.Scheme
 	req.URL.Host = targetURL.Host
 	if req.URL.Path == "" {
@@ -195,13 +283,7 @@ func rewriteProxyRequest(req *http.Request, targetURL *neturl.URL) {
 	} {
 		req.Header.Del(h)
 	}
-	for _, headerName := range []string{"Origin", "Referer"} {
-		if rewritten := rewriteProxyHeaderURL(req.Header.Get(headerName), targetURL); rewritten != "" {
-			req.Header.Set(headerName, rewritten)
-		} else {
-			req.Header.Del(headerName)
-		}
-	}
+	rewriteBrowserContext(req, targetURL, pageURL)
 }
 
 func extractSuccessToken(body []byte) string {
@@ -240,7 +322,7 @@ var htmlStyleContentRe = regexp.MustCompile(`(?is)(<style[^>]*>)(.*?)(</style>)`
 
 // rewriteHTMLAttrsServerSide переписывает абсолютные и protocol-relative URL
 // в src/href/action HTML на стороне сервера. URL, совпадающие с upstream origin,
-// идут на localhost; остальные - через /generic_proxy, чтобы cross-domain
+// идут на localhost; остальные - через /ext/, чтобы cross-domain
 // ресурсы (st.vk.ru, userapi.com и т.д.) грузились через прокси.
 func rewriteHTMLAttrsServerSide(html string, targetURL *neturl.URL) string {
 	localOrigin := localCaptchaOrigin()
@@ -258,7 +340,10 @@ func rewriteHTMLAttrsServerSide(html string, targetURL *neturl.URL) string {
 		if strings.HasPrefix(absURL, localOrigin) {
 			return rawURL
 		}
-		// прочие абсолютные URL -> через generic_proxy
+		// прочие абсолютные URL -> через /ext/
+		if u, err := neturl.Parse(absURL); err == nil && (u.Scheme == "http" || u.Scheme == "https") && u.Host != "" {
+			return localExtPath(u)
+		}
 		return "/generic_proxy?proxy_url=" + neturl.QueryEscape(absURL)
 	}
 
@@ -507,7 +592,7 @@ func solveViaProxy(ctx context.Context, redirectURI string, dialer net.Dialer, p
 	proxy := &httputil.ReverseProxy{
 		Transport: transport,
 		Rewrite: func(req *httputil.ProxyRequest) {
-			rewriteProxyRequest(req.Out, targetURL)
+			rewriteProxyRequest(req.Out, targetURL, targetURL)
 		},
 		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
 			Log().Errorf("[Captcha Proxy] %s %s: %v", r.Method, r.URL.String(), err)
@@ -610,13 +695,8 @@ func solveViaProxy(ctx context.Context, redirectURI string, dialer net.Dialer, p
 		_, _ = fmt.Fprint(w, "ok")
 	})
 
-	mux.HandleFunc("/generic_proxy", func(w http.ResponseWriter, r *http.Request) {
-		targetAuthURL := r.URL.Query().Get("proxy_url")
-		targetParsed, err := neturl.Parse(targetAuthURL)
-		if err != nil || targetParsed.Host == "" {
-			http.Error(w, "Bad URL", http.StatusBadRequest)
-			return
-		}
+	// proxyExternal - сторонние хосты виджета: статика st.vk.ru, API api.vk.ru.
+	proxyExternal := func(w http.ResponseWriter, r *http.Request, targetParsed *neturl.URL) {
 		if !isAllowedProxyHost(targetParsed.Hostname()) {
 			http.Error(w, "Forbidden host", http.StatusForbidden)
 			return
@@ -625,8 +705,9 @@ func solveViaProxy(ctx context.Context, redirectURI string, dialer net.Dialer, p
 			Transport: transport,
 			Rewrite: func(req *httputil.ProxyRequest) {
 				req.Out.URL.Path = targetParsed.Path
+				req.Out.URL.RawPath = targetParsed.RawPath
 				req.Out.URL.RawQuery = targetParsed.RawQuery
-				rewriteProxyRequest(req.Out, targetParsed)
+				rewriteProxyRequest(req.Out, targetParsed, targetURL)
 			},
 			ModifyResponse: func(res *http.Response) error {
 				// убираем security-заголовки, блокирующие cross-origin загрузку
@@ -647,8 +728,12 @@ func solveViaProxy(ctx context.Context, redirectURI string, dialer net.Dialer, p
 				// разрешаем cross-origin доступ к ресурсу
 				res.Header.Set("Access-Control-Allow-Origin", "*")
 
-				// captchaNotRobot.check идёт через /generic_proxy на api.vk.com/api.vk.ru.
-				if strings.Contains(targetAuthURL, "captchaNotRobot.check") {
+				if loc, err := res.Location(); err == nil && res.StatusCode >= 300 && res.StatusCode < 400 && isAllowedProxyHost(loc.Hostname()) {
+					res.Header.Set("Location", localExtPath(loc))
+				}
+
+				// captchaNotRobot.check идёт сюда на api.vk.com/api.vk.ru.
+				if strings.Contains(targetParsed.Path, "captchaNotRobot.check") {
 					bodyBytes, readErr := io.ReadAll(res.Body)
 					if readErr == nil {
 						_ = res.Body.Close()
@@ -663,6 +748,24 @@ func solveViaProxy(ctx context.Context, redirectURI string, dialer net.Dialer, p
 			},
 		}
 		genericReverse.ServeHTTP(w, r)
+	}
+
+	mux.HandleFunc("/generic_proxy", func(w http.ResponseWriter, r *http.Request) {
+		targetParsed, err := neturl.Parse(r.URL.Query().Get("proxy_url"))
+		if err != nil || targetParsed.Host == "" {
+			http.Error(w, "Bad URL", http.StatusBadRequest)
+			return
+		}
+		proxyExternal(w, r, targetParsed)
+	})
+
+	mux.HandleFunc(extPrefix, func(w http.ResponseWriter, r *http.Request) {
+		targetParsed, ok := parseLocalExtPath(r.URL.EscapedPath(), r.URL.RawQuery)
+		if !ok {
+			http.Error(w, "Bad URL", http.StatusBadRequest)
+			return
+		}
+		proxyExternal(w, r, targetParsed)
 	})
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
