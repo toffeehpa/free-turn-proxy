@@ -106,9 +106,8 @@ type captchaSession struct {
 	browserFP string
 	debugInfo string
 	powHash   string
-
-	// downlink - у живого клиента одно значение на всю captcha, не отдельное на тик.
-	downlink float64
+	// probeMs - время пробы телеметрии; nil - случайное.
+	probeMs func(name string) float64
 
 	sensors sensorConfig
 	// sensorsStart - ответ settings: с него виджет начинает тикать таймером телеметрии.
@@ -147,7 +146,6 @@ func Solve(
 		apiHost:   captchaAPIHost,
 		log:       l,
 		browserFP: profile.VisitorID,
-		downlink:  sessionDownlink(),
 		sensors:   defaultSensorConfig(),
 		started:   time.Now(),
 	}
@@ -575,14 +573,13 @@ func (s *captchaSession) performCaptchaCheck(
 ) (*captchaCheck, error) {
 	s.checked = true
 	sinceSettings := time.Since(s.sensorsStart)
-	data := buildAnalytics(s.sensors, s.downlink, sinceSettings)
 	values := make([][2]string, 0, 15)
 	values = append(values,
 		[2]string{"session_token", sessionToken},
 		[2]string{"domain", s.domain},
 		[2]string{"adFp", ""},
 	)
-	values = append(values, data.fields()...)
+	values = append(values, analyticsFields()...)
 	values = append(values,
 		[2]string{"browser_fp", s.browserFP},
 		[2]string{"hash", s.powHash},
@@ -594,8 +591,8 @@ func (s *captchaSession) performCaptchaCheck(
 	if err != nil {
 		return nil, fmt.Errorf("captcha check failed: %w", err)
 	}
-	s.logger().Debugf("[Captcha] check payload answer_bytes=%d downlink_samples=%d since_settings=%s",
-		len(answerJSON), len(data.connDownlink), sinceSettings.Truncate(time.Millisecond))
+	s.logger().Debugf("[Captcha] check payload answer_bytes=%d since_settings=%s",
+		len(answerJSON), sinceSettings.Truncate(time.Millisecond))
 	check, err := parseCaptchaCheck(resp)
 	if err != nil {
 		return nil, err

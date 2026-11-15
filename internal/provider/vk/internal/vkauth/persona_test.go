@@ -63,14 +63,18 @@ func TestAutoFailureBurnsPersonaAndRestartsChain(t *testing.T) {
 		return "manual-token", nil
 	}
 
-	burned := c.currentPersona()
-	_, err := c.solveCaptcha(context.Background(), nil, burned, 1, "lnk", "name", "t1", testCaptchaErr())
-	if !errors.Is(err, ErrPersonaBurned) {
-		t.Fatalf("auto failure err = %v, want ErrPersonaBurned", err)
-	}
+	// Каждая попытка авторешателя - со своей персоной, человек - только после всех.
 	fresh := c.currentPersona()
-	if fresh.VisitorID == burned.VisitorID {
-		t.Fatal("auto failure kept the rejected persona")
+	for i := range captchaAutoAttempts {
+		burned := fresh
+		_, err := c.solveCaptcha(context.Background(), nil, burned, 1, "lnk", "name", "t1", testCaptchaErr())
+		if !errors.Is(err, ErrPersonaBurned) {
+			t.Fatalf("auto failure %d err = %v, want ErrPersonaBurned", i+1, err)
+		}
+		fresh = c.currentPersona()
+		if fresh.VisitorID == burned.VisitorID {
+			t.Fatalf("auto failure %d kept the rejected persona", i+1)
+		}
 	}
 
 	data, err := c.solveCaptcha(context.Background(), nil, fresh, 1, "lnk", "name", "t1", testCaptchaErr())
@@ -87,7 +91,7 @@ func TestAutoFailureBurnsPersonaAndRestartsChain(t *testing.T) {
 
 func TestExhaustedModesBurnPersonaAndLock(t *testing.T) {
 	c := newTestClient(t, nil)
-	c.captchaAttempt = 2
+	c.captchaAttempt = captchaAutoAttempts + 1
 
 	burned := c.currentPersona()
 	_, err := c.solveCaptcha(context.Background(), nil, burned, 1, "lnk", "name", "t1", testCaptchaErr())
