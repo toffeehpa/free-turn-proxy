@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.2.1](https://github.com/toffeehpa/free-turn-proxy/compare/v4.2.0...v4.2.1) (2026-11-16)
+
+
+### Bug Fixes
+
+* **captcha:** новая телеметрия PoW ([6fc427a](https://github.com/toffeehpa/free-turn-proxy/commit/6fc427a028cdb701d39961eac25961a63aeadfff))
+* **captcha:** ручная капча под новый виджет ([7b8638d](https://github.com/toffeehpa/free-turn-proxy/commit/7b8638d1801ddc1fd4fa0130d805aed3a25c5f47))
+
 ## [4.2.0](https://github.com/toffeehpa/free-turn-proxy/compare/v4.1.0...v4.2.0) (2026-11-09)
 
 
