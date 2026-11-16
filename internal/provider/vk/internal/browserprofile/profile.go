@@ -19,6 +19,8 @@ const (
 	uaMac     = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36"
 	uaAndroid = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Mobile Safari/537.36"
 
+	chromeFullVersion = "146.0.7680.164"
+
 	timezoneMoscow    = "Europe/Moscow"
 	touchPointsMobile = 5
 )
@@ -53,6 +55,7 @@ type Profile struct {
 	memGB     int
 	webdriver bool
 	dev       device
+	hints     hints
 }
 
 func (p Profile) IsMobile() bool { return p.Platform == Mobile }
@@ -89,6 +92,46 @@ func (p Profile) Orientation() string {
 }
 
 func (p Profile) PlatformName() string { return strings.Trim(p.SecChUaPlatform, `"`) }
+
+func (p Profile) NavigatorPlatform() string { return p.hints.navPlatform }
+
+func (p Profile) InnerWidth() int { return p.dev.InnerWidth }
+
+type HighEntropy struct {
+	Platform        string
+	PlatformVersion string
+	Architecture    string
+	Model           string
+	UAFullVersion   string
+	FullVersionList []Brand
+	Bitness         string
+	FormFactors     []string
+}
+
+func (p Profile) HighEntropy() HighEntropy {
+	full := make([]Brand, 0, 3)
+	for _, b := range p.Brands() {
+		v := chromeFullVersion
+		if !strings.Contains(b.Brand, "Chrom") {
+			v = b.Version + ".0.0.0"
+		}
+		full = append(full, Brand{Brand: b.Brand, Version: v})
+	}
+	formFactor := "Desktop"
+	if p.IsMobile() {
+		formFactor = "Mobile"
+	}
+	return HighEntropy{
+		Platform:        p.PlatformName(),
+		PlatformVersion: p.hints.platformVersion,
+		Architecture:    p.hints.arch,
+		Model:           p.hints.model,
+		UAFullVersion:   chromeFullVersion,
+		FullVersionList: full,
+		Bitness:         p.hints.bitness,
+		FormFactors:     []string{formFactor},
+	}
+}
 
 type Brand struct {
 	Brand   string `json:"brand"`
@@ -149,21 +192,40 @@ type spec struct {
 	userAgent  string
 	chPlatform string
 	dev        device
+	hints      hints
+}
+
+type hints struct {
+	navPlatform     string
+	platformVersion string
+	arch            string
+	bitness         string
+	model           string
+}
+
+var (
+	hintsWindows = hints{navPlatform: "Win32", platformVersion: "19.0.0", arch: "x86", bitness: "64"}
+	hintsMac     = hints{navPlatform: "MacIntel", platformVersion: "15.6.1", arch: "arm", bitness: "64"}
+)
+
+// На Android архитектуру и разрядность Chrome не отдаёт, зато отдаёт модель.
+func hintsAndroid(platformVersion, model string) hints {
+	return hints{navPlatform: "Linux armv81", platformVersion: platformVersion, model: model}
 }
 
 var desktopSpecs = []spec{
-	{userAgent: uaWindows, chPlatform: `"Windows"`, dev: newDevice(1920, 1080, 1032, 1147, 945, 1, 16, 8)},
-	{userAgent: uaWindows, chPlatform: `"Windows"`, dev: newDevice(1536, 864, 816, 1229, 738, 1.25, 8, 8)},
-	{userAgent: uaWindows, chPlatform: `"Windows"`, dev: newDevice(2560, 1440, 1392, 1512, 1237, 1, 12, 8)},
-	{userAgent: uaMac, chPlatform: `"macOS"`, dev: newDevice(1512, 982, 944, 1147, 870, 2, 10, 8)},
+	{userAgent: uaWindows, chPlatform: `"Windows"`, dev: newDevice(1920, 1080, 1032, 1147, 945, 1, 16, 8), hints: hintsWindows},
+	{userAgent: uaWindows, chPlatform: `"Windows"`, dev: newDevice(1536, 864, 816, 1229, 738, 1.25, 8, 8), hints: hintsWindows},
+	{userAgent: uaWindows, chPlatform: `"Windows"`, dev: newDevice(2560, 1440, 1392, 1512, 1237, 1, 12, 8), hints: hintsWindows},
+	{userAgent: uaMac, chPlatform: `"macOS"`, dev: newDevice(1512, 982, 944, 1147, 870, 2, 10, 8), hints: hintsMac},
 }
 
 var mobileSpecs = []spec{
-	{userAgent: uaAndroid, chPlatform: `"Android"`, dev: newDevice(364, 793, 793, 363, 671, 3.5, 8, 8)},
-	{userAgent: uaAndroid, chPlatform: `"Android"`, dev: newDevice(393, 852, 852, 393, 659, 3, 8, 8)},
-	{userAgent: uaAndroid, chPlatform: `"Android"`, dev: newDevice(412, 915, 915, 412, 724, 2.625, 8, 4)},
-	{userAgent: uaAndroid, chPlatform: `"Android"`, dev: newDevice(360, 800, 800, 360, 612, 3, 8, 4)},
-	{userAgent: uaAndroid, chPlatform: `"Android"`, dev: newDevice(384, 832, 832, 384, 644, 2.75, 8, 8)},
+	{userAgent: uaAndroid, chPlatform: `"Android"`, dev: newDevice(364, 793, 793, 363, 671, 3.5, 8, 8), hints: hintsAndroid("14.0.0", "SM-S911B")},
+	{userAgent: uaAndroid, chPlatform: `"Android"`, dev: newDevice(393, 852, 852, 393, 659, 3, 8, 8), hints: hintsAndroid("14.0.0", "SM-A546B")},
+	{userAgent: uaAndroid, chPlatform: `"Android"`, dev: newDevice(412, 915, 915, 412, 724, 2.625, 8, 4), hints: hintsAndroid("15.0.0", "Pixel 7")},
+	{userAgent: uaAndroid, chPlatform: `"Android"`, dev: newDevice(360, 800, 800, 360, 612, 3, 8, 4), hints: hintsAndroid("13.0.0", "SM-A525F")},
+	{userAgent: uaAndroid, chPlatform: `"Android"`, dev: newDevice(384, 832, 832, 384, 644, 2.75, 8, 8), hints: hintsAndroid("13.0.0", "2201117TG")},
 }
 
 // Identity идентифицирует браузерную личность и её поколение.
@@ -199,6 +261,7 @@ func For(p Platform, id Identity) Profile {
 	}
 
 	profile = withDevice(profile, s.dev)
+	profile.hints = s.hints
 	profile.VisitorID = visitorID(id, profile)
 	return profile
 }

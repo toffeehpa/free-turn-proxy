@@ -3,15 +3,26 @@
 
     const { local: LOCAL, upstream: UPSTREAM } = window.__ftpCaptcha ?? {};
     const PROXY = '/generic_proxy?proxy_url=';
+    const EXT = '/ext/';
     const RESULT = '/local-captcha-result';
     const CHECK = 'captchaNotRobot.check';
+
+    // chunks/ webpack считает от адреса скрипта - нужен путь.
+    function proxied(url) {
+        try {
+            const u = new URL(url);
+            return `${EXT}${u.protocol.slice(0, -1)}/${u.host}${u.pathname}${u.search}${u.hash}`;
+        } catch {
+            return PROXY + encodeURIComponent(url);
+        }
+    }
 
     function rewriteUrl(url) {
         if (!url || typeof url !== 'string') return url;
         if (url.startsWith(LOCAL)) return url;
         if (url.startsWith(UPSTREAM)) return LOCAL + url.slice(UPSTREAM.length);
-        if (url.startsWith('//')) return PROXY + encodeURIComponent(location.protocol + url);
-        if (url.startsWith('http://') || url.startsWith('https://')) return PROXY + encodeURIComponent(url);
+        if (url.startsWith('//')) return proxied(new URL(UPSTREAM).protocol + url);
+        if (url.startsWith('http://') || url.startsWith('https://')) return proxied(url);
         return url;
     }
 

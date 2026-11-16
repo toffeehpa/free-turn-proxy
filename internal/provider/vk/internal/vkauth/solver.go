@@ -17,17 +17,28 @@ const (
 	CaptchaSolveModeManual
 )
 
+// Две попытки авторешателя, каждая с новой персоной: на череду провалов VK
+// отвечает ERROR_LIMIT на весь IP.
+const captchaAutoAttempts = 2
+
 func CaptchaSolveModeForAttempt(attempt int, manualOnly bool) (CaptchaSolveMode, bool) {
 	if manualOnly {
 		return CaptchaSolveModeManual, attempt == 0
 	}
-	switch attempt {
-	case 0:
+	switch {
+	case attempt < captchaAutoAttempts:
 		return CaptchaSolveModeAuto, true
-	case 1:
+	case attempt == captchaAutoAttempts:
 		return CaptchaSolveModeManual, true
 	}
 	return 0, false
+}
+
+func nextAttemptVerb(cur, next CaptchaSolveMode) string {
+	if cur == next {
+		return "Retrying"
+	}
+	return "Falling back to"
 }
 
 func CaptchaSolveModeLabel(mode CaptchaSolveMode) string {

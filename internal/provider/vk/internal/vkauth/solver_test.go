@@ -16,12 +16,17 @@ func TestCaptchaSolveModeForAttempt(t *testing.T) {
 		}
 
 		mode, ok = CaptchaSolveModeForAttempt(1, false)
-		if !ok || mode != CaptchaSolveModeManual {
-			t.Fatalf("expected second attempt to use manual captcha, got mode=%v ok=%v", mode, ok)
+		if !ok || mode != CaptchaSolveModeAuto {
+			t.Fatalf("expected second attempt to retry auto captcha, got mode=%v ok=%v", mode, ok)
 		}
 
-		if _, ok = CaptchaSolveModeForAttempt(2, false); ok {
-			t.Fatal("expected only two attempts in default flow")
+		mode, ok = CaptchaSolveModeForAttempt(2, false)
+		if !ok || mode != CaptchaSolveModeManual {
+			t.Fatalf("expected third attempt to use manual captcha, got mode=%v ok=%v", mode, ok)
+		}
+
+		if _, ok = CaptchaSolveModeForAttempt(3, false); ok {
+			t.Fatal("expected only three attempts in default flow")
 		}
 	})
 

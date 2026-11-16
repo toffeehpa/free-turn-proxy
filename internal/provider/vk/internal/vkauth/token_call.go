@@ -208,8 +208,8 @@ func (c *Client) solveCaptcha(
 			streamID, CaptchaSolveModeLabel(solveMode), attempt+1, solveErr)
 		nextSolveMode, hasNextSolveMode := CaptchaSolveModeForAttempt(attempt+1, c.manualOnly)
 		if hasNextSolveMode {
-			c.log.Infof("[STREAM %d] [Captcha] Falling back to %s with a new persona",
-				streamID, CaptchaSolveModeLabel(nextSolveMode))
+			c.log.Infof("[STREAM %d] [Captcha] %s %s with a new persona",
+				streamID, nextAttemptVerb(solveMode, nextSolveMode), CaptchaSolveModeLabel(nextSolveMode))
 			c.burnPersona(streamID)
 			return "", ErrPersonaBurned
 		}
