@@ -66,6 +66,7 @@ func ParseClient(args []string, errOut io.Writer) (*Client, error) {
 	fs.BoolVar(&r.Routes, "routes", r.Routes, "автоматическое управление маршрутами к TURN-серверам; требует прав администратора")
 	fs.BoolVar(&r.Tun, "tun", r.Tun, "поднять встроенный WireGuard/AmneziaWG из ссылки через Wintun; только Windows, нужны права администратора и wintun.dll")
 	fs.StringVar(&r.TunnelConfig, "tun-conf", r.TunnelConfig, "конфиг WireGuard/AmneziaWG для -tun текстом, как поле wg в ссылке; ссылка его перекрывает")
+	fs.StringVar(&r.Control, "control", r.Control, "канал событий для приложения: named pipe или FIFO, строки JSON; ручная captcha уходит туда вместо браузера")
 	kcp := registerKCPFlags(fs, r.KCP)
 
 	if err := fs.Parse(args); err != nil {

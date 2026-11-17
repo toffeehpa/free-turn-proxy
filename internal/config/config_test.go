@@ -421,3 +421,14 @@ func TestParseClient_ProviderDirect(t *testing.T) {
 		t.Fatalf("explicit -n: %v, n=%d", err, c.TURN.N)
 	}
 }
+
+func TestParseClient_Control(t *testing.T) {
+	const pipe = `\\.\pipe\freeturn`
+	c, err := ParseClient(append(validClientArgs(), "-control", pipe), io.Discard)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.Control != pipe {
+		t.Errorf("Control = %q, want %q", c.Control, pipe)
+	}
+}
