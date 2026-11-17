@@ -6,7 +6,6 @@ import (
 
 	"github.com/toffeehpa/free-turn-proxy/internal/config"
 	"github.com/toffeehpa/free-turn-proxy/internal/logx"
-	"github.com/toffeehpa/free-turn-proxy/internal/provider/vk"
 	"github.com/toffeehpa/free-turn-proxy/internal/session"
 	"github.com/toffeehpa/free-turn-proxy/internal/tunnel"
 )
@@ -45,9 +44,14 @@ func setupTun(cfg *config.Client, logger logx.Logger) (*tunHandle, error) {
 // newSession: адаптер поднимаем после session.New - до него конфиг сессии мог
 // не пройти, а маршрут 0.0.0.0/0 уже отрезал бы машину от сети.
 func newSession(cfg *config.Client, vpn *tunHandle, logger logx.Logger) (*session.Session, error) {
+	ctl, err := openControl(cfg.Control, logger)
+	if err != nil {
+		vpn.close()
+		return nil, err
+	}
 	deps := session.Deps{
 		Logger: logger,
-		Solver: vk.DefaultManualSolver,
+		Solver: ctl.solver(),
 	}
 	if vpn != nil {
 		deps.LocalPipe = vpn.pipe

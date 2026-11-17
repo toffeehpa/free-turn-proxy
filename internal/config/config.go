@@ -106,7 +106,8 @@ type Client struct {
 	SubURL   string
 	Routes   bool
 	// Tun - поднять встроенный туннель из ссылки (пока только Windows).
-	Tun bool
+	Tun     bool
+	Control string
 }
 
 // SFUOpts - темп видеотрека для -provider sfu; ноль - дефолт канала.
