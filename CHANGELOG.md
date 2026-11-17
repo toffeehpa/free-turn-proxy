@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.2.2](https://github.com/toffeehpa/free-turn-proxy/compare/v4.2.1...v4.2.2) (2026-11-17)
+
+
+### Bug Fixes
+
+* **captcha:** ручная капча через -control вместо браузера ([dcee814](https://github.com/toffeehpa/free-turn-proxy/commit/dcee814620d08ef33f4b943dc0bc753c0299e735))
+* **captcha:** ручная капча через -control вместо браузера ([40bab9b](https://github.com/toffeehpa/free-turn-proxy/commit/40bab9b36fe38fa7dcb71c2312cc8df0a21081c9))
+
 ## [4.2.1](https://github.com/toffeehpa/free-turn-proxy/compare/v4.2.0...v4.2.1) (2026-11-16)
 
 
